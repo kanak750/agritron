@@ -1,69 +1,241 @@
-import Image from "next/image";
+import { db } from '@/lib/db'
+import { ProductCard } from '@/components/product/ProductCard'
+import Link from 'next/link'
+import { Search, LayoutGrid, ShieldCheck, Truck, CreditCard, HeadphonesIcon } from 'lucide-react'
+import { Input } from '@/components/ui/Input'
+import { Button } from '@/components/ui/Button'
 
-export default function Home() {
+export const dynamic = 'force-dynamic'
+
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const resolvedParams = await searchParams;
+  const search = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined
+  const categorySlug = typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
+
+  // Build where clause
+  const where: any = {}
+  
+  if (search) {
+    where.OR = [
+      { name: { contains: search } },
+      { description: { contains: search } },
+      { shortDescription: { contains: search } }
+    ]
+  }
+
+  if (categorySlug) {
+    where.category = { slug: categorySlug }
+  }
+
+  const [products, categories] = await Promise.all([
+    db.product.findMany({
+      where,
+      include: { category: true },
+      orderBy: { createdAt: 'desc' }
+    }),
+    db.category.findMany({
+      include: {
+        _count: { select: { products: true } }
+      }
+    })
+  ])
+
+  // Derive some "trending" products (for demo, just take the first 4)
+  const trendingProducts = products.slice(0, 4);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
+    <div className="flex flex-col bg-gray-50 min-h-screen">
+      
+      {/* 1. HERO BANNER */}
+      <section className="relative w-full h-[450px] md:h-[550px] bg-primary overflow-hidden">
+         <div className="absolute inset-0 bg-[url('https://picsum.photos/seed/farmhero/1920/600')] bg-cover bg-center mix-blend-overlay opacity-50"></div>
+         <div className="absolute inset-0 bg-gradient-to-r from-green-900/95 via-green-800/80 to-transparent"></div>
+         <div className="relative h-full container mx-auto px-4 flex flex-col justify-center text-white space-y-6 max-w-3xl pt-10 pb-24">
+            <span className="inline-block px-4 py-1.5 bg-amber-500 text-white text-xs font-bold tracking-widest uppercase rounded-full w-max shadow-sm">
+              New Season Arrival
+            </span>
+            <h1 className="text-4xl md:text-5xl lg:text-7xl font-display font-extrabold leading-tight drop-shadow-md">
+              Smart Technology for Modern Farming
+            </h1>
+            <p className="text-lg md:text-xl text-white/90 max-w-xl font-medium drop-shadow-sm">
+              Upgrade your yield with our latest automated controllers, sensors, and agricultural equipment.
+            </p>
+            <div className="pt-4">
+              <Link href="/?q=" className="inline-flex items-center justify-center w-max bg-white text-green-900 hover:bg-gray-100 hover:text-green-950 rounded-full px-8 py-4 text-lg font-bold shadow-xl transition-all hover:scale-105 border-none">
+                Explore Collection
+              </Link>
+            </div>
+         </div>
+      </section>
+
+      {/* 2. OVERLAPPING SEARCH & CATEGORY CONTAINER */}
+      <section className="container mx-auto px-4 -mt-16 relative z-10 mb-16">
+        <div className="bg-white rounded-3xl shadow-2xl p-6 md:p-8 border border-gray-100">
+          
+          {/* Search Bar */}
+          <form action="/" method="GET" className="relative flex items-center mb-8 max-w-4xl mx-auto">
+            <Search className="absolute left-5 text-gray-400 h-6 w-6" />
+            <Input 
+              type="search" 
+              name="q" 
+              placeholder="Search for controllers, sensors, tools..." 
+              defaultValue={search || ''}
+              className="w-full pl-14 pr-32 py-7 rounded-full border-gray-200 shadow-inner bg-gray-50 focus:bg-white focus:ring-primary focus:border-primary text-lg transition-colors"
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            {categorySlug && <input type="hidden" name="category" value={categorySlug} />}
+            <button type="submit" className="absolute right-2 rounded-full px-8 py-4 bg-primary hover:bg-primary/90 text-white text-base font-bold shadow-md transition-colors">
+              Search
+            </button>
+          </form>
+
+          {/* Categories */}
+          <div className="flex overflow-x-auto hide-scrollbar gap-6 md:gap-10 justify-start md:justify-center py-4 px-4">
+            <Link 
+              href={`/${search ? `?q=${search}` : ''}`}
+              className="group flex flex-col items-center gap-3 min-w-[90px] transition-transform hover:-translate-y-1"
+            >
+              <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center text-xl transition-all border-4 shadow-sm ${!categorySlug ? 'bg-primary/10 border-primary shadow-md scale-110' : 'bg-gray-100 border-white group-hover:border-gray-200'}`}>
+                <LayoutGrid className={`h-8 w-8 ${!categorySlug ? 'text-primary' : 'text-gray-500 group-hover:text-gray-700'}`} />
+              </div>
+              <span className={`text-sm md:text-base font-semibold ${!categorySlug ? 'text-primary' : 'text-gray-600 group-hover:text-gray-900'}`}>
+                All Items
+              </span>
+            </Link>
+            
+            {categories.map(category => (
+              <Link 
+                key={category.id}
+                href={`/?category=${category.slug}${search ? `&q=${search}` : ''}`}
+                className="group flex flex-col items-center gap-3 min-w-[90px] transition-transform hover:-translate-y-1"
+              >
+                <div className={`w-16 h-16 md:w-20 md:h-20 rounded-full flex items-center justify-center overflow-hidden transition-all border-4 shadow-sm ${categorySlug === category.slug ? 'border-primary shadow-md scale-110' : 'border-white bg-green-50 group-hover:border-gray-200'}`}>
+                  <img src={`https://picsum.photos/seed/${category.slug}/150/150`} alt={category.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                </div>
+                <span className={`text-sm md:text-base font-semibold ${categorySlug === category.slug ? 'text-primary' : 'text-gray-600 group-hover:text-gray-900'}`}>
+                  {category.name}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
-      </main>
+      </section>
+
+      {/* 3. PROMOTIONAL BANNER */}
+      {!search && !categorySlug && (
+        <section className="container mx-auto px-4 mb-16">
+          <div className="w-full rounded-3xl overflow-hidden relative h-[250px] md:h-[300px] shadow-2xl group">
+            <img src="https://picsum.photos/seed/promo-banner/1200/400" className="absolute inset-0 w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Promo" />
+            <div className="absolute inset-0 bg-gradient-to-r from-orange-600/90 via-orange-500/70 to-transparent"></div>
+            <div className="relative h-full p-8 md:p-12 flex flex-col justify-center text-white max-w-2xl">
+              <span className="bg-white/20 px-3 py-1 rounded-full text-sm font-bold w-max mb-4 backdrop-blur-sm">Limited Time Offer</span>
+              <h2 className="text-3xl md:text-5xl font-extrabold mb-4 drop-shadow-md">Monsoon Mega Sale</h2>
+              <p className="text-lg md:text-xl mb-8 max-w-md drop-shadow-sm font-medium">Equip your farm for the season with up to 40% off selected irrigation controllers.</p>
+              <Link href="/?q=" className="inline-flex items-center justify-center w-max rounded-full text-orange-700 font-extrabold bg-white hover:bg-gray-100 border-none px-8 py-4 shadow-xl hover:-translate-y-1 transition-transform text-lg">
+                Shop Deals Now
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4. TRENDING PRODUCTS (Only show if not searching) */}
+      {!search && !categorySlug && trendingProducts.length > 0 && (
+        <section className="container mx-auto px-4 mb-16">
+          <div className="flex items-end justify-between mb-8">
+            <div>
+              <h2 className="text-3xl font-display font-extrabold text-gray-900 mb-2">Trending Now</h2>
+              <p className="text-gray-500">Our most popular items this week.</p>
+            </div>
+            <Link href="/?q=" className="hidden md:flex text-primary font-bold hover:underline items-center gap-1">
+              View All <span aria-hidden="true">&rarr;</span>
+            </Link>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {trendingProducts.map((product, index) => (
+              <ProductCard key={product.id} product={product} index={index} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* 5. MAIN PRODUCT GRID */}
+      <section className="container mx-auto px-4 mb-24">
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-gray-200 gap-4">
+          <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-900">
+            {categorySlug 
+              ? categories.find(c => c.slug === categorySlug)?.name || 'Products' 
+              : search 
+                ? `Search Results for "${search}"` 
+                : 'All Equipment & Supplies'}
+          </h2>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-bold text-gray-600 bg-gray-200 px-4 py-1.5 rounded-full shadow-inner">
+              {products.length} Items Found
+            </span>
+          </div>
+        </div>
+
+        {products.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <div className="py-24 text-center border-2 border-dashed border-gray-300 rounded-3xl bg-white shadow-sm flex flex-col items-center max-w-3xl mx-auto">
+            <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
+              <Search className="h-10 w-10 text-gray-400" />
+            </div>
+            <h3 className="font-display font-extrabold text-2xl mb-3 text-gray-900">No products found</h3>
+            <p className="text-gray-500 mb-8 max-w-md mx-auto text-lg">
+              We couldn't find any products matching your current filters. Try adjusting your search or browsing all categories.
+            </p>
+            <Link href="/" className="inline-flex items-center justify-center rounded-full px-10 py-4 bg-primary hover:bg-primary/90 shadow-lg font-bold text-white transition-colors">
+              Clear Filters
+            </Link>
+          </div>
+        )}
+      </section>
+
+      {/* 6. TRUST BADGES */}
+      <section className="bg-white py-16 border-t border-gray-200">
+        <div className="container mx-auto px-4">
+           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center max-w-5xl mx-auto">
+              <div className="flex flex-col items-center justify-center gap-3 group">
+                 <div className="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-2 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                   <Truck className="h-8 w-8" />
+                 </div>
+                 <h4 className="font-extrabold text-gray-900">Free Delivery</h4>
+                 <p className="text-sm text-gray-500 font-medium">On orders over ₹1000</p>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 group">
+                 <div className="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-2 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                   <ShieldCheck className="h-8 w-8" />
+                 </div>
+                 <h4 className="font-extrabold text-gray-900">Genuine Products</h4>
+                 <p className="text-sm text-gray-500 font-medium">100% Authentic Quality</p>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 group">
+                 <div className="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-2 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                   <CreditCard className="h-8 w-8" />
+                 </div>
+                 <h4 className="font-extrabold text-gray-900">Secure Payment</h4>
+                 <p className="text-sm text-gray-500 font-medium">Multiple safe gateways</p>
+              </div>
+              <div className="flex flex-col items-center justify-center gap-3 group">
+                 <div className="w-16 h-16 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center mb-2 group-hover:bg-green-600 group-hover:text-white transition-colors duration-300 shadow-sm">
+                   <HeadphonesIcon className="h-8 w-8" />
+                 </div>
+                 <h4 className="font-extrabold text-gray-900">Expert Support</h4>
+                 <p className="text-sm text-gray-500 font-medium">Dedicated farm helpline</p>
+              </div>
+           </div>
+        </div>
+      </section>
     </div>
-  );
+  )
 }

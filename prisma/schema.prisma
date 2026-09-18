@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+  shortDescription String
+  description      String
+  price            Float
+  compareAtPrice   Float?
+  categoryId       String
+  category         Category @relation(fields: [categoryId], references: [id])
+  images           String   // JSON string of image URLs
+  features         String   // JSON string of features array
+  specifications   String   // JSON string of specs object/array
+  applications     String   // JSON string of applications array
+  stockStatus      String   @default("IN_STOCK") // IN_STOCK, OUT_OF_STOCK
+  featured         Boolean  @default(false)
+  badge            String?
+  relatedProducts  String?  // JSON string of related product IDs/Slugs
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  customerName    String
+  mobileNumber    String
+  email           String?
+  address         String
+  villageTown     String
+  district        String
+  state           String
+  pinCode         String
+  subtotal        Float
+  shipping        Float
+  total           Float
+  paymentStatus   String      @default("PENDING") // PENDING, PAID, FAILED
+  orderStatus     String      @default("PENDING") // PENDING, CONFIRMED, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  items           OrderItem[]
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id])
+  productId String
+  name      String
+  price     Float
+  quantity  Int
+}
