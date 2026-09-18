@@ -30,9 +30,9 @@ export function ProductCard({ product, index }: ProductCardProps) {
       </div>
       
       {/* Card Body */}
-      <div className="p-5 flex flex-col flex-grow relative bg-white">
+      <div className="p-3 md:p-5 flex flex-col flex-grow relative bg-white">
         {/* Category */}
-        <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+        <span className="text-[10px] md:text-xs font-bold uppercase tracking-wider text-gray-400 mb-1 md:mb-1.5">
           {product.category.name}
         </span>
         
@@ -44,23 +44,23 @@ export function ProductCard({ product, index }: ProductCardProps) {
         </h3>
         
         {/* Ratings (Dummy) */}
-        <div className="flex items-center gap-1 mb-4">
-          <span className="text-amber-400 text-xs">★★★★☆</span>
-          <span className="text-xs text-gray-400 font-medium">(24)</span>
+        <div className="flex items-center gap-1 mb-3 md:mb-4">
+          <span className="text-amber-400 text-[10px] md:text-xs">★★★★☆</span>
+          <span className="text-[10px] md:text-xs text-gray-400 font-medium">(24)</span>
         </div>
         
         {/* Pricing & Actions */}
-        <div className="mt-auto flex flex-col gap-3">
-          <div className="flex items-baseline gap-2">
-            <span className="font-bold text-lg md:text-xl text-gray-900">
+        <div className="mt-auto flex flex-col gap-2.5 md:gap-3">
+          <div className="flex items-baseline gap-1.5 md:gap-2">
+            <span className="font-bold text-base md:text-xl text-gray-900">
               ₹{product.price.toLocaleString('en-IN')}
             </span>
-            <span className="text-xs text-gray-400 line-through font-medium">
+            <span className="text-[10px] md:text-xs text-gray-400 line-through font-medium">
               ₹{(product.price * 1.2).toLocaleString('en-IN')}
             </span>
           </div>
           
-          <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold py-2.5 shadow-md transition-colors z-10 relative">
+          <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold py-2 md:py-2.5 min-h-[36px] md:min-h-[44px] text-xs md:text-sm shadow-md transition-colors z-10 relative">
             Add to Cart
           </Button>
         </div>
