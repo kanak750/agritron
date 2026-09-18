@@ -1,4 +1,3 @@
-import { db } from '@/lib/db'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
@@ -6,12 +5,13 @@ import { CheckCircle2, ChevronRight, Truck, ShieldCheck, Smartphone } from 'luci
 import { generateWhatsAppLink } from '@/lib/whatsapp'
 import { AddToCartButton } from '@/components/cart/AddToCartButton'
 import { Metadata } from 'next'
+import { products } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const resolvedParams = await params
-  const product = await db.product.findUnique({ where: { slug: resolvedParams.slug } })
+  const product = products.find(p => p.slug === resolvedParams.slug)
   if (!product) return { title: 'Product Not Found' }
   return {
     title: `${product.name} | AGRITRON`,
@@ -26,10 +26,7 @@ export default async function ProductDetailPage({
 }) {
   const resolvedParams = await params
   
-  const product = await db.product.findUnique({
-    where: { slug: resolvedParams.slug },
-    include: { category: true }
-  })
+  const product = products.find(p => p.slug === resolvedParams.slug)
 
   if (!product) {
     notFound()

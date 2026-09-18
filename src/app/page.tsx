@@ -1,9 +1,9 @@
-import { db } from '@/lib/db'
 import { ProductCard } from '@/components/product/ProductCard'
 import Link from 'next/link'
 import { Search, LayoutGrid, ShieldCheck, Truck, CreditCard, HeadphonesIcon } from 'lucide-react'
 import { Input } from '@/components/ui/Input'
 import { Button } from '@/components/ui/Button'
+import { products as dummyProducts, categories as dummyCategories } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,33 +16,21 @@ export default async function HomePage({
   const search = typeof resolvedParams.q === 'string' ? resolvedParams.q : undefined
   const categorySlug = typeof resolvedParams.category === 'string' ? resolvedParams.category : undefined
 
-  // Build where clause
-  const where: any = {}
+  let products = dummyProducts
+  
+  if (categorySlug) {
+    products = products.filter(p => p.category.slug === categorySlug)
+  }
   
   if (search) {
-    where.OR = [
-      { name: { contains: search } },
-      { description: { contains: search } },
-      { shortDescription: { contains: search } }
-    ]
+    const s = search.toLowerCase()
+    products = products.filter(p => 
+      p.name.toLowerCase().includes(s) || 
+      p.shortDescription.toLowerCase().includes(s)
+    )
   }
 
-  if (categorySlug) {
-    where.category = { slug: categorySlug }
-  }
-
-  const [products, categories] = await Promise.all([
-    db.product.findMany({
-      where,
-      include: { category: true },
-      orderBy: { createdAt: 'desc' }
-    }),
-    db.category.findMany({
-      include: {
-        _count: { select: { products: true } }
-      }
-    })
-  ])
+  const categories = dummyCategories
 
   // Derive some "trending" products (for demo, just take the first 4)
   const trendingProducts = products.slice(0, 4);

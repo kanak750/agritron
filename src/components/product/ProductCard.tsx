@@ -1,13 +1,9 @@
 import Link from 'next/link'
-import { Prisma } from '@prisma/client'
 import { Button } from '@/components/ui/Button'
-
-type ProductWithCategory = Prisma.ProductGetPayload<{
-  include: { category: true }
-}>
+import { Product } from '@/lib/data'
 
 interface ProductCardProps {
-  product: ProductWithCategory
+  product: Product
   index?: number
 }
 
