@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Agritron E-Commerce Platform
+
+A modern, premium e-commerce storefront for agricultural supplies, smart technology, and modern farming equipment. Built with Next.js, Tailwind CSS, and Prisma.
+
+## Tech Stack
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Database ORM:** [Prisma](https://www.prisma.io/)
+- **Icons:** [Lucide React](https://lucide.dev/)
+- **UI Components:** Built with custom Tailwind classes and Radix UI primitives.
+
+## Features
+- **Rich E-commerce Storefront:** Premium, content-dense home page featuring hero banners, promotional sections, and trending products.
+- **Dynamic Product Catalog:** Robust product listing and category filtering.
+- **Responsive Design:** Fully responsive layout that looks great on mobile, tablet, and desktop.
+- **Modern UI/UX:** Features micro-animations, glassmorphism elements, and sleek styling to provide a "WOW" user experience.
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+Make sure you have Node.js and npm installed on your machine.
 
+### Installation
+
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Set up the database:
+Make sure your `.env` file is configured with the correct database connection string. Then, push the schema and seed the database (if applicable):
+```bash
+npx prisma db push
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser to see the result.
 
-## Learn More
+## Project Structure
+- `src/app`: Next.js App Router pages and layouts.
+- `src/components`: Reusable UI components (Product Cards, Buttons, Headers).
+- `src/lib`: Utility functions and database client (`db.ts`).
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Recent Updates
+- Transitioned to a single-page storefront architecture to consolidate the shopping experience.
+- Overhauled the UI with a premium design system: custom gradient banners, dynamic product cards, and unified visual density.
