@@ -20,10 +20,10 @@ export default function CartPage() {
         <h1 className="font-display text-3xl font-bold mb-4">Your cart is empty</h1>
         <p className="text-foreground/70 mb-8 max-w-md mx-auto">
           Looks like you haven't added any products to your cart yet. Discover our practical technology solutions.
-        </p>
-        <Button asChild size="lg">
-          <Link href="/products">Continue Shopping</Link>
-        </Button>
+          </p>
+          <Link href="/" className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors">
+            Continue Shopping
+          </Link>
       </div>
     )
   }
@@ -66,7 +66,15 @@ export default function CartPage() {
                   <div className="col-span-3 flex justify-center">
                     <div className="flex items-center border border-border rounded-md bg-background">
                       <button 
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => {
+                          if (item.quantity === 1) {
+                            if (window.confirm("Are you sure you want to remove this item from the cart?")) {
+                              removeItem(item.id)
+                            }
+                          } else {
+                            updateQuantity(item.id, item.quantity - 1)
+                          }
+                        }}
                         className="p-2 hover:bg-surface text-foreground/70 transition-colors"
                       >
                         <Minus className="h-4 w-4" />
@@ -100,7 +108,7 @@ export default function CartPage() {
           </div>
 
           <div className="hidden md:flex justify-between items-center">
-            <Link href="/products" className="text-sm font-semibold text-primary hover:underline flex items-center gap-2">
+            <Link href="/" className="text-sm text-primary hover:underline font-medium mb-4 inline-block">
               &larr; Continue Shopping
             </Link>
           </div>

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
+import { AddToCartButton } from '@/components/cart/AddToCartButton'
 import { Product } from '@/lib/data'
 
 interface ProductCardProps {
@@ -60,9 +60,10 @@ export function ProductCard({ product, index }: ProductCardProps) {
             </span>
           </div>
           
-          <Button className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold py-2 md:py-2.5 min-h-[36px] md:min-h-[44px] text-xs md:text-sm shadow-md transition-colors z-10 relative">
-            Add to Cart
-          </Button>
+          <AddToCartButton 
+            product={product} 
+            className="w-full rounded-xl bg-primary hover:bg-primary/90 text-white font-bold py-2 md:py-2.5 min-h-[36px] md:min-h-[44px] text-xs md:text-sm shadow-md transition-colors z-10 relative" 
+          />
         </div>
       </div>
     </div>

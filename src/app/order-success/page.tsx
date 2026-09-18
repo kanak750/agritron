@@ -33,9 +33,9 @@ export default async function OrderSuccessPage({
       </p>
       
       <div className="flex gap-4">
-        <Button asChild size="lg">
-          <Link href="/products">Continue Shopping</Link>
-        </Button>
+          <Link href="/" className="inline-flex items-center justify-center rounded-md bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90 transition-colors">
+            Continue Shopping
+          </Link>
       </div>
     </div>
   )

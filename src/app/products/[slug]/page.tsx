@@ -116,13 +116,16 @@ export default async function ProductDetailPage({
 
             {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
-              <AddToCartButton product={product} />
-              <Button asChild size="lg" variant="outline" className="flex-1 text-base h-14 border-primary text-primary hover:bg-primary/5">
-                <a href={generateWhatsAppLink(product.name, product.price)} target="_blank" rel="noopener noreferrer">
-                  <Smartphone className="mr-2 h-5 w-5" />
-                  Order via WhatsApp
-                </a>
-              </Button>
+              <AddToCartButton product={product} className="flex-1 rounded-md bg-primary hover:bg-primary/90 text-white font-medium text-base h-14 shadow-sm" />
+              <a 
+                href={generateWhatsAppLink(product.name, product.price)} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-1 flex items-center justify-center rounded-md border border-primary text-primary hover:bg-primary/5 font-medium text-base h-14 transition-colors"
+              >
+                <Smartphone className="mr-2 h-5 w-5" />
+                Order via WhatsApp
+              </a>
             </div>
 
             {/* Description */}
